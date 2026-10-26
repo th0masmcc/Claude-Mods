@@ -1,5 +1,9 @@
 # context-handoff — plugin Claude Code
 
+> **Vous utilisez claude.ai (chat web, bureau, mobile) ?** Installez plutôt
+> [`context-handoff-web`](../context-handoff-web/README.md) : cette version-ci repose sur des hooks et un
+> script local que le chat ne charge pas.
+
 Détecte les sessions Claude Code longues ou devenues complexes, propose au bon moment de sauvegarder
 leur état opérationnel dans un `HANDOFF.md` compact et vérifié, puis permet de reprendre le travail
 dans une nouvelle session avec `/handoff resume`.
@@ -54,7 +58,7 @@ claude plugin install context-handoff@claude-mods
 Choisissez la portée *user* pour l'activer dans tous vos projets. Redémarrez la session (ou
 `/reload-plugins`) pour charger les hooks.
 
-**Depuis un dossier local ou une archive ZIP** (après extraction) :
+**Depuis un dossier local ou l'archive `context-handoff-code-<version>.zip`** (après extraction) :
 
 ```bash
 claude plugin marketplace add /chemin/vers/claude-mods      # dossier contenant .claude-plugin/marketplace.json
@@ -231,11 +235,18 @@ de vos `settings.json`, la `statusLine` du pont, et les `HANDOFF.md` que vous ne
 ## Empaquetage ZIP
 
 ```bash
-python3 tools/package.py            # depuis la racine du dépôt → dist/context-handoff-1.0.0.zip
+python3 tools/package.py            # depuis la racine du dépôt
 ```
 
-L'archive contient la marketplace et le plugin (sans caches) ; elle s'installe comme un dossier local
-(voir [Installation](#installation)).
+Produit `dist/context-handoff-code-1.1.0.zip` (marketplace + les deux plugins, sans caches ni tests, à
+installer comme un dossier local, voir [Installation](#installation)) et
+`dist/context-handoff-web-1.0.0.zip` (version claude.ai, à téléverser dans Customize › Plugins).
+
+### Mise à jour
+
+`claude plugin marketplace update claude-mods` puis `claude plugin update context-handoff@claude-mods`
+(redémarrer la session ou `/reload-plugins`). Depuis une archive : extraire la nouvelle version au même
+endroit, puis `claude plugin update`.
 
 ## Arborescence
 
@@ -250,9 +261,11 @@ plugins/context-handoff/
 │   ├── resume.md                        procédure de reprise (chargée seulement pour resume)
 │   └── scripts/
 │       ├── handoff.py                   CLI : hook, status, config, snooze, gather, write, verify, statusline
-│       └── handofflib/                  config, state, transcript, detect, gitinfo, redact, document, hooks
+│       └── handofflib/                  config, state, transcript, detect, gitinfo, document, hooks,
+│                                        spec + redact (format partagé avec la version Web)
 ├── tests/                               unittest (stdlib)
 ├── docs/DESIGN.md, docs/TESTING.md
 └── examples/HANDOFF.example.md
-tools/package.py                         création de l'archive ZIP
+tools/package.py                         création et vérification des archives ZIP
+tools/sync_shared.py                     copie du format partagé vers plugins/context-handoff-web
 ```

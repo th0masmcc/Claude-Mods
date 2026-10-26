@@ -1,6 +1,6 @@
 {
   "name": "context-handoff",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Detects long or complex Claude Code sessions (context usage, compactions, activity) and offers to save a compact, verified HANDOFF.md; /handoff resume continues from it in a new session.",
   "author": {
     "name": "th0masmcc"

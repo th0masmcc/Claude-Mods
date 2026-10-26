@@ -8,7 +8,7 @@ Environnement : Linux, Claude Code 2.1.310, Python 3.11 / 3.12 / 3.13, Git 2.x �
 cd plugins/context-handoff && python3 -m unittest discover -s tests -v
 ```
 
-Résultat : **39 tests, 38 réussis, 1 ignoré en root** (`test_permission_denied` : root ignore les
+Résultat (v1.1.0, après extraction du format partagé `spec.py`) : **39 tests, 38 réussis, 1 ignoré en root** (`test_permission_denied` : root ignore les
 droits ; exécuté séparément en utilisateur `nobody` → réussi). Identique sous Python 3.11, 3.12 et 3.13.
 Les tests passent par le vrai point d'entrée (`handoff.py hook` en sous-processus, JSON sur stdin),
 avec des transcripts JSONL synthétiques au format observé dans Claude Code 2.1.310, des dépôts Git

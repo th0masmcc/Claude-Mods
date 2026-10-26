@@ -1,10 +1,14 @@
 ---
 name: handoff
-description: Save or resume the operational state of a long Claude Code session through a HANDOFF.md file. Use when the user runs /handoff, accepts an offer to save the session state, asks to create/update a handoff, or asks to resume work from HANDOFF.md.
+description: Save or resume the operational state of a long Claude Code session (local project, helper script) through a HANDOFF.md file. Use in Claude Code when the user runs /handoff, accepts an offer to save the session state, asks to create/update a handoff, or asks to resume work from HANDOFF.md.
 argument-hint: "[create | resume | status | config [set KEY VALUE] | snooze [MIN] | off | on]"
 ---
 
 # /handoff
+
+This skill needs Claude Code: a local project and `python3` to run the helper script. In claude.ai
+chat (no local project, hooks not loaded), use the `handoff` / `handoff-resume` skills of the
+`context-handoff-web` plugin instead, or tell the user to install it from Customize > Plugins.
 
 Helper script (Python 3, read-only except for HANDOFF.md and its own state):
 `python3 "${CLAUDE_SKILL_DIR}/scripts/handoff.py" <command>` — written `HANDOFF` below.

@@ -5,4 +5,4 @@ Standard library only (Python 3.8+). Every hook entry point must stay fast
 working even if this package is broken.
 """
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
