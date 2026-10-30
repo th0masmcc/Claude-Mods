@@ -106,15 +106,16 @@ class Structure(unittest.TestCase):
         fmt = (WEB / "skills/handoff/references/format.md").read_text()
         header = spec.build_header({"version": "1", "generated": "YYYY-MM-DD", "source": "claude-web"}).strip()
         self.assertIn(header, fmt, "header example must be exactly what the script generates")
-        template = fmt.split("## Template", 1)[1].split("## Certainty tags", 1)[0]
+        template = re.search(r"## Template.*?```markdown\n(.*?)\n```", fmt, re.DOTALL).group(1)
         heads = re.findall(r"^## (.+)$", template, re.MULTILINE)
+        known = dict(spec.SECTIONS, **spec.EXTRA_SECTIONS)
         mapped = []
         for h in heads:
-            keys = [k for k, rx in spec.SECTIONS.items() if re.search(rx, h.lower())]
+            keys = [k for k, rx in known.items() if re.search(rx, h.lower())]
             self.assertTrue(keys, f"template heading '{h}' is not recognised by the validator")
             mapped.append(keys[0])
         self.assertEqual(len(set(mapped)), len(mapped), "each heading maps to a distinct section")
-        self.assertEqual(set(mapped), set(spec.SECTIONS))
+        self.assertEqual(set(mapped), set(known))
         for tag in spec.TAGS:
             self.assertIn(f"[{tag}]", fmt)
 
@@ -232,6 +233,34 @@ class FinaliseScript(unittest.TestCase):
         code, res = self.run_check(DOC, "--max-tokens", "50", "--out", str(self.tmp / "H.md"))
         self.assertEqual(code, 2)
         self.assertIn("too long", res["errors"][0])
+
+    def test_long_documents_are_accepted(self):
+        # A very long thread needs a long handoff: 2,000 tokens was too small in real use.
+        body = DOC + "\n## Context and background\n" + ("- detail line with figures 42 and reasons\n" * 700)
+        code, res = self.run_check(body, "--out", str(self.tmp / "H.md"))
+        self.assertEqual(code, 0, res)
+        self.assertGreater(res["tokens"], 7000)
+
+    def test_hard_limit_still_enforced(self):
+        body = DOC + "\n## Context and background\n" + ("x" * 50_000)
+        code, res = self.run_check(body, "--out", str(self.tmp / "H.md"))
+        self.assertEqual(code, 2)
+        self.assertIn("12000", res["errors"][0])
+
+    def test_long_document_without_context_or_glossary_is_flagged(self):
+        body = DOC + "\n## References\n" + ("- criteria 9, 10 and 11 apply to profile C\n" * 300)
+        code, res = self.run_check(body, "--out", str(self.tmp / "H.md"))
+        self.assertEqual(code, 0)
+        joined = " ".join(res["warnings"])
+        for word in ("Context and background", "Glossary", "Ways of working"):
+            self.assertIn(word, joined)
+        complete = body + "\n## Context and background\nx\n\n## Ways of working\ny\n\n## Glossary\n- **C** — z\n"
+        code, res = self.run_check(complete, "--out", str(self.tmp / "H2.md"))
+        self.assertFalse([w for w in res["warnings"] if "add a" in w])
+
+    def test_short_document_not_flagged_for_glossary(self):
+        code, res = self.run_check(DOC, "--out", str(self.tmp / "H.md"))
+        self.assertFalse([w for w in res["warnings"] if "Glossary" in w])
 
     def test_masks_secrets(self):
         leaky = DOC + "\n## References\n- key: sk-ant-" + "x" * 30 + "\n- DB_PASSWORD=correcthorse\n"

@@ -7,7 +7,7 @@ Il existe en deux versions qui partagent le même format de document :
 | | [`context-handoff-web`](plugins/context-handoff-web/README.md) | [`context-handoff`](plugins/context-handoff/README.md) |
 | --- | --- | --- |
 | Pour | **claude.ai** : chat web, application de bureau, mobile (et Cowork) | **Claude Code** : terminal, IDE, onglet Code |
-| Installation | Customize › Plugins › Add › **Upload plugin** avec [`dist/context-handoff-web-1.0.0.zip`](dist/context-handoff-web-1.0.0.zip), ou Add marketplace `th0masmcc/claude-mods` | `/plugin marketplace add th0masmcc/claude-mods` puis `/plugin install context-handoff@claude-mods` |
+| Installation | Customize › Plugins › Add › **Upload plugin** avec [`dist/context-handoff-web-1.1.0.zip`](dist/context-handoff-web-1.1.0.zip), ou Add marketplace `th0masmcc/claude-mods` | `/plugin marketplace add th0masmcc/claude-mods` puis `/plugin install context-handoff@claude-mods` |
 | Prérequis | Aucun (exécution de code facultative) | `python3` |
 | Détection | Jugement de Claude, guidé par le skill (pas de métrique accessible dans le chat) | Hooks locaux déterministes : taux de contexte, compactions, activité |
 | Document | Fichier à télécharger, ou bloc Markdown à copier | Écrit à la racine du dépôt, avec sauvegarde |
@@ -21,7 +21,7 @@ Un document créé dans l'une des versions se reprend dans l'autre.
 .claude-plugin/marketplace.json     marketplace « claude-mods » (les deux plugins)
 plugins/context-handoff-web/        version claude.ai : skills handoff et handoff-resume
 plugins/context-handoff/            version Claude Code : hooks, skill /handoff, script Python
-dist/context-handoff-web-1.0.0.zip  archive prête à téléverser sur claude.ai (reproductible)
+dist/context-handoff-web-1.1.0.zip  archive prête à téléverser sur claude.ai (reproductible)
 tools/package.py                    construit et vérifie les archives
 tools/sync_shared.py                recopie le format partagé (spec.py, redact.py) vers la version Web
 ```

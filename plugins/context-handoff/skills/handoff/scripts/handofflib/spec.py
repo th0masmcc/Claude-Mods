@@ -22,6 +22,14 @@ SECTIONS = {
     "attention": r"attention|risk|risque|open question|question|hypoth|assumption",
     "references": r"reference|référence",
 }
+# Optional sections for long, self-contained documents (no warning when absent).
+EXTRA_SECTIONS = {
+    "context": r"context|contexte|background|historique",
+    "glossary": r"glossary|glossaire|terms|termes|vocabulaire",
+    "agreements": r"working agreement|ways of working|méthode de travail|façon de travailler|collaboration",
+    "figures": r"figures|chiffres|metrics|mesures|data|données",
+    "artifacts": r"artifact|appendix|annexe|produced|produits dans|livrables",
+}
 REQUIRED = ("objective", "next_action")
 TAGS = ("VERIFIED", "DECIDED", "ASSUMED", "UNKNOWN")
 TAG_RE = re.compile(r"\[(VERIFIED|DECIDED|ASSUMED|UNKNOWN)\]")
@@ -78,7 +86,8 @@ def headings(text: str):
 
 def sections_found(body: str):
     hs = headings(body)
-    return {key for key, rx in SECTIONS.items() if any(re.search(rx, h) for h in hs)}
+    known = dict(SECTIONS, **EXTRA_SECTIONS)
+    return {key for key, rx in known.items() if any(re.search(rx, h) for h in hs)}
 
 
 def tag_counts(body: str) -> dict:

@@ -1,7 +1,7 @@
 {
   "name": "context-handoff-web",
   "displayName": "Context Handoff",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "For long claude.ai conversations: Claude offers, when it is really worth it, to write a compact HANDOFF.md (objective, decisions, progress, next action, with verified/assumed/unknown tags) and resumes work from one attached in a new conversation.",
   "author": {
     "name": "th0masmcc",

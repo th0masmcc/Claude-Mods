@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Keeps long conversations recoverable through a HANDOFF.md. Proactive use - in a long conversation (roughly 15+ exchanges, or large pasted material) that has accumulated decisions, constraints, finished and pending tasks, or shows drift (the user repeating information, answers contradicting earlier decisions), load this skill to decide whether to end your reply with a one-line offer to write a HANDOFF.md, starting with "**Handoff** —"; at most twice per conversation, never after the user declined, never in short or simple chats. On request - use it whenever the user asks to create, update or save a handoff, a HANDOFF.md, or a summary to continue the work in a new conversation. To continue from an existing HANDOFF.md, use the handoff-resume skill instead.
+description: Keeps long conversations recoverable through a HANDOFF.md. Proactive use - in a long conversation (roughly 15+ exchanges, or large pasted material) that has accumulated decisions, constraints, finished and pending tasks, or shows drift (the user repeating information, answers contradicting earlier decisions), load this skill to decide whether to end your reply with a one-line offer to write a HANDOFF.md, starting with "**Handoff** —"; at most twice per conversation, never after the user declined, never in short or simple chats. On request - use it whenever the user asks to create, update or save a handoff, a HANDOFF.md, or a summary to continue the work in a new conversation. Reload this skill for every creation or update, even if it was used earlier in the conversation: its rules may have changed, and the document must be sized to the conversation (a long thread needs several thousand tokens, with context and glossary). To continue from an existing HANDOFF.md, use the handoff-resume skill instead.
 ---
 
 # Handoff for long conversations
@@ -47,31 +47,45 @@ Nothing else: no draft and no tool call before the user says yes.
 
 ## 2. Creating or updating the document
 
-Consent is an explicit request, or a "yes" to your proposal. Do it in one pass: ask a question only if
-the objective itself is unclear (then one question).
+Consent is an explicit request, or a "yes" to your proposal. Do not ask questions first, except one
+if the objective itself is unclear. The reader of the document is a new conversation that has only
+this file: aim for fidelity, not brevity.
 
-1. Read `references/format.md` in this skill's folder: header, template, certainty tags, size and
-   sensitive-data rules.
-2. Write the document from this conversation only: its messages, the files the user shared, the
-   results shown. If an earlier HANDOFF.md is present (pasted, attached, or produced earlier here),
-   update it: keep what is still valid, move finished items to Done, remove what is obsolete, and
-   do not append a history of sessions.
-3. Deliver it:
+1. Read `references/format.md` in this skill's folder: size by conversation length, template,
+   self-containment rules, certainty tags, sensitive data.
+2. **Inventory before writing** (in your reasoning, not in the reply). Go through the whole
+   conversation from the start, not only the recent part, and list: the phases or topics in order;
+   every decision with its reason and the rejected options; constraints and process rules; the
+   user's preferences and the role they gave you; measured figures and identifiers; problems and
+   what was tried; texts you produced that are still in use (prompts, rules, specifications); open
+   questions; every label or abbreviation the work relies on. If the beginning of the conversation is
+   no longer visible to you or only as a summary, say so in **Context and background**.
+3. Write the document from that inventory and from the files and results shared in the conversation,
+   following the template and the size table. If an earlier HANDOFF.md is present (pasted, attached,
+   or produced earlier here), update it: keep what is still valid, move finished items to Done,
+   remove what is obsolete, add what is missing; do not append a history of sessions.
+4. **Check before delivering**: every label, number, letter or code used in the document is defined;
+   every decision and threshold has its reason; nothing from the inventory was dropped for space;
+   a reader with only this file could explain the next action and why it comes next. Fix gaps first.
+5. Deliver it:
    - **You can run code or create files here** (code execution and file creation enabled): save the
      body to a draft file and run `python3 ${CLAUDE_SKILL_DIR}/scripts/check_handoff.py <draft>`
      (in chat, the skill folder is copied into the sandbox: use the script at `scripts/check_handoff.py`
-     relative to this SKILL.md). Run it directly; no need to list the folder first. It masks secrets, checks the mandatory sections and the size, adds the
-     header and writes `HANDOFF.md` to the folder shared with the user (`/mnt/user-data/outputs/` on
-     claude.ai), or to the path given with `--out`. On exit code 2, fix what it reports and rerun, at most
-     twice. Present the file to the user for download. In your reply, write 2–4 lines (what it covers,
-     approximate size, redactions or warnings), not the document again.
+     relative to this SKILL.md). Run it directly; no need to list the folder first. It masks secrets,
+     checks the mandatory sections and the size, adds the header and writes `HANDOFF.md` to the folder
+     shared with the user (`/mnt/user-data/outputs/` on claude.ai), or to the path given with `--out`.
+     On exit code 2, fix what it reports and rerun, at most twice; act on its warnings about missing
+     context or glossary. Present the file to the user for download. In your reply, write 2–4 lines
+     (sections covered, approximate size in tokens, redactions or warnings), not the document again.
    - **Otherwise**: output the complete document, header included, in a single ```markdown code block,
-     and tell the user to save it as `HANDOFF.md`. Mask secrets yourself first.
-4. Explain how to resume, in 1–2 lines: start a new conversation, attach `HANDOFF.md` (or paste it)
+     and tell the user to save it as `HANDOFF.md`. Mask secrets yourself first. If the document is too
+     long for one reply, split it at section boundaries into numbered parts and say how many.
+6. Explain how to resume, in 1–2 lines: start a new conversation, attach `HANDOFF.md` (or paste it)
    and ask to resume from it; in a claude.ai Project, adding the file to the project's knowledge
    makes it available to every new conversation in the project. Say that you cannot write to their
    computer or their Git repository yourself, unless a tool for that is actually available in this
    conversation; if they work in a repository, they can put the file at its root and commit it.
+   Mention that they can ask for any section to be expanded.
 
 Never present an assumption as a fact, never invent results, files or decisions, and never copy
 secrets.

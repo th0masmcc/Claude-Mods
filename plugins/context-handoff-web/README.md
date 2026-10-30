@@ -16,7 +16,7 @@ Claude. Il n'envoie aucune donnée à un service tiers.
 
 ### Option A — téléverser l'archive (le plus simple)
 
-1. Récupérez [`dist/context-handoff-web-1.0.0.zip`](../../dist/context-handoff-web-1.0.0.zip) depuis
+1. Récupérez [`dist/context-handoff-web-1.1.0.zip`](../../dist/context-handoff-web-1.1.0.zip) depuis
    le dépôt GitHub (bouton *Download raw file*), ou reconstruisez-le avec
    `python3 tools/package.py --only web` depuis un clone (archive reproductible, identique octet pour octet).
 2. Sur [claude.ai](https://claude.ai) : **Personnaliser (Customize) › Plugins › Ajouter (Add) ›
@@ -64,6 +64,21 @@ branche par défaut du dépôt : cette option fonctionne une fois les fichiers f
 3. Nouvelle conversation → joignez le fichier → Claude résume l'objectif et la prochaine action,
    signale ce qui diverge ou ne peut pas être vérifié depuis le chat, pose au plus 3 questions, puis
    reprend le travail.
+
+### Taille et contenu du document
+
+Le document est dimensionné selon la conversation : 400 à 1 000 tokens pour une tâche courte,
+2 000 à 5 000 pour une longue conversation, jusqu'à ~10 000 pour un très long fil (limite technique :
+12 000). Pour qu'une nouvelle conversation qui n'a que ce fichier comprenne tout, il contient aussi,
+quand c'est utile : le **contexte et l'historique**, vos **façons de travailler** (rôle de Claude,
+préférences), un **glossaire** qui définit chaque étiquette ou abréviation, les **chiffres clés**, et
+en **annexe** les textes produits encore utiles (prompts, règles, spécifications). Avant de livrer,
+Claude fait l'inventaire de toute la conversation et vérifie qu'aucun terme n'est laissé sans
+définition.
+
+Document trop court ou incomplet ? Dites-le (« il manque le contexte sur X ») : Claude le complète.
+Après une mise à jour du plugin, demandez simplement « refais le HANDOFF.md » dans la même
+conversation : le skill est rechargé avec ses nouvelles règles.
 
 Exemple complet : [`examples/HANDOFF.example.md`](examples/HANDOFF.example.md). Le format est
 identique à celui de la version Claude Code : un document créé sur le Web peut être repris dans

@@ -240,7 +240,7 @@ python3 tools/package.py            # depuis la racine du dépôt
 
 Produit `dist/context-handoff-code-1.1.0.zip` (marketplace + les deux plugins, sans caches ni tests, à
 installer comme un dossier local, voir [Installation](#installation)) et
-`dist/context-handoff-web-1.0.0.zip` (version claude.ai, à téléverser dans Customize › Plugins).
+`dist/context-handoff-web-1.1.0.zip` (version claude.ai, à téléverser dans Customize › Plugins).
 
 ### Mise à jour
 

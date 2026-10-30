@@ -43,8 +43,21 @@ La mémoire des refus est la conversation elle-même : la ligne de proposition c
 - Les documents sont interchangeables : `source: claude-web` ou `source: claude-code` dans
   l'en-tête ; testé dans les deux sens.
 
+## Taille et autonomie du document (v1.1.0)
+
+Contrairement à Claude Code, où le dépôt reste la source de vérité et où un document court suffit
+(2 000 tokens par défaut), sur le Web la conversation disparaît : le handoff doit porter seul tout le
+contexte. La taille suit donc la conversation (jusqu'à ~10 000 tokens, limite 12 000), et le format
+impose de définir chaque étiquette, de garder les raisons et les chiffres, et d'annexer les textes
+produits encore utiles. Le script avertit quand un document de plus de 2 500 tokens n'a pas de
+contexte, de glossaire ou de façons de travailler.
+
+Les skills déjà chargés restent dans la conversation avec leur ancien texte ; seule la description
+est relue à chaque tour depuis le plugin installé. Elle impose donc de recharger le skill à chaque
+création ou mise à jour, ce que les essais ont confirmé nécessaire.
+
 ## Coût
 
-Description du skill `handoff` : ~190 tokens visibles en permanence (+ ~70 pour `handoff-resume`).
-Chargement à la création : SKILL.md (~1 400 tokens) + format.md (~800) + le document. Pas d'appel
+Description du skill `handoff` : ~250 tokens visibles en permanence (+ ~70 pour `handoff-resume`).
+Chargement à la création : SKILL.md (~1 700 tokens) + format.md (~1 600) + le document. Pas d'appel
 de modèle supplémentaire ni d'agent ; le script est facultatif et local au bac à sable.

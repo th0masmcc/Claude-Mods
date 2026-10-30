@@ -9,7 +9,7 @@ validate` et les essais comportementaux).
 python3 -m unittest discover -s plugins/context-handoff-web/tests -v
 ```
 
-**22 tests réussis** :
+**26 tests réussis** :
 
 | Domaine | Ce qui est vérifié |
 | --- | --- |
@@ -21,7 +21,7 @@ python3 -m unittest discover -s plugins/context-handoff-web/tests -v
 | Marketplace | Les deux plugins listés, versions cohérentes avec les manifestes |
 | Archive Web | Un seul dossier racine, un seul `plugin.json`, pas de tests ni de caches, archive reproductible, copie versionnée dans `dist/` identique à une reconstruction ; le vérificateur rejette les archives invalides |
 | Archive Claude Code | Contient la marketplace et les deux plugins |
-| Script de finalisation | Exécuté depuis une copie isolée du dossier du skill (comme dans le bac à sable) : écriture avec en-tête, repli sur le dossier courant hors claude.ai, idempotence, refus si sections manquantes ou trop long, masquage des secrets, erreur d'écriture signalée |
+| Script de finalisation | Exécuté depuis une copie isolée du dossier du skill (comme dans le bac à sable) : écriture avec en-tête, repli sur le dossier courant hors claude.ai, idempotence, refus si sections manquantes ou au-delà de 12 000 tokens, documents longs acceptés (> 7 000 tokens), avertissement si un long document n'a ni contexte, ni glossaire, ni façons de travailler, masquage des secrets, erreur d'écriture signalée |
 | Compatibilité croisée | Un document Web est accepté par `handoff.py write/verify` (Claude Code) ; l'exemple Claude Code et l'exemple Web passent la validation |
 
 Les 39 tests de la version Claude Code passent toujours (38 réussis, 1 ignoré en root, réussi en
@@ -46,9 +46,23 @@ façon que dans le chat ; c'est une approximation, pas une validation sur claude
 | Création avec exécution de script autorisée et clé d'API fictive dans la demande | `check_handoff.py` exécuté (`status: written`), clé non recopiée, explication donnée à l'utilisateur. |
 | Nouvelle conversation, handoff collé + « l'IT a déjà validé le DNS » | `handoff-resume` chargé ; objectif et prochaine action résumés ; divergence détectée et plan ajusté ; vérification côté fournisseur signalée comme non faite ; 3 questions. |
 
+### v1.1.0 — retour d'usage réel : handoff trop court
+
+Un utilisateur a signalé, sur un très long fil réel, un document de 1 768 tokens (plafond de 2 000)
+incomplet et incompréhensible seul (critères, profils et étapes cités sans définition, aucun contexte
+sur l'utilisateur ni sur la façon de travailler). Corrections : taille proportionnelle (limite
+12 000), sections Contexte, Façons de travailler, Glossaire, Chiffres clés, Annexe ; inventaire de
+toute la conversation et contrôle d'autonomie avant livraison ; obligation, dans la description, de
+recharger le skill à chaque création ou mise à jour.
+
+| Essai (même conversation simulée de 22 échanges) | Résultat |
+| --- | --- |
+| Demande de mise à jour après changement du plugin, ancienne description | Skill **non rechargé** : Claude a réutilisé l'ancienne règle des 2 000 tokens restée dans la conversation (~1 900 tokens). |
+| Même demande, description qui impose le rechargement | Skill rechargé, `format.md` relu, script exécuté : **5 512 tokens** (au lieu de 1 319), 15 sections dont Contexte, Façons de travailler, Glossaire (J, pilote, go/no-go, quarantaine, contact actif…), Chiffres clés, Annexe (ticket IT, règles 4 et 5, script de dates) ; règles 1 à 3 jamais montrées signalées `[UNKNOWN]`. |
+
 ## 3. Vérifications qui demandent une intervention humaine sur claude.ai
 
-1. **Customize › Plugins › Add › Upload plugin** avec `dist/context-handoff-web-1.0.0.zip` : le plugin
+1. **Customize › Plugins › Add › Upload plugin** avec `dist/context-handoff-web-1.1.0.zip` : le plugin
    s'installe sans erreur et apparaît dans *Vos plugins*.
 2. **Customize › Skills** : `handoff` et `handoff-resume` présents et activés.
 3. Nouvelle conversation : « Quels skills as-tu via des plugins ? » → les deux skills cités.
