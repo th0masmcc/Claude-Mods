@@ -16,9 +16,12 @@ Claude. Il n'envoie aucune donnée à un service tiers.
 
 ### Option A — téléverser l'archive (le plus simple)
 
-1. Récupérez [`dist/context-handoff-web-1.1.0.zip`](../../dist/context-handoff-web-1.1.0.zip) depuis
-   le dépôt GitHub (bouton *Download raw file*), ou reconstruisez-le avec
-   `python3 tools/package.py --only web` depuis un clone (archive reproductible, identique octet pour octet).
+1. Téléchargez l'archive depuis la page **Releases** du dépôt :
+   [`context-handoff-web.zip` (dernière version)](https://github.com/th0masmcc/Claude-Mods/releases/latest/download/context-handoff-web.zip),
+   ou la version numérotée sur [la page des releases](https://github.com/th0masmcc/Claude-Mods/releases).
+   Alternatives : [`dist/context-handoff-web-1.1.0.zip`](../../dist/context-handoff-web-1.1.0.zip) dans le
+   dépôt (bouton *Download raw file*), ou `python3 tools/package.py --only web` depuis un clone
+   (archive reproductible, identique octet pour octet).
 2. Sur [claude.ai](https://claude.ai) : **Personnaliser (Customize) › Plugins › Ajouter (Add) ›
    Téléverser un plugin (Upload plugin)**, puis choisissez le `.zip`. Ne le décompressez pas.
 3. Le plugin apparaît dans **Vos plugins**, activé. Vérifiez dans **Personnaliser › Skills** que

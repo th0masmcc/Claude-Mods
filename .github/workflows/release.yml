@@ -1,0 +1,103 @@
+name: release
+
+# Publishes the plugin archives as GitHub Releases so they can be downloaded
+# directly. Runs when a plugin or its archive changes, or by hand.
+#   context-handoff-web-v<version>   claude.ai upload archive (marked "latest")
+#   context-handoff-code-v<version>  Claude Code marketplace archive
+# Re-running for a version that already has a release replaces its files.
+
+on:
+  push:
+    branches: [main, claude/charming-goldberg-qm8key]
+    paths:
+      - "plugins/**"
+      - "dist/**"
+      - "tools/package.py"
+      - ".claude-plugin/marketplace.json"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tests
+        run: |
+          python -m unittest discover -s plugins/context-handoff/tests
+          python -m unittest discover -s plugins/context-handoff-web/tests
+
+      - name: Build and check archives
+        id: build
+        run: |
+          python tools/package.py --out build
+          web=$(python -c "import json;print(json.load(open('plugins/context-handoff-web/.claude-plugin/plugin.json'))['version'])")
+          code=$(python -c "import json;print(json.load(open('plugins/context-handoff/.claude-plugin/plugin.json'))['version'])")
+          # The committed archive must be the one built from these sources.
+          cmp "build/context-handoff-web-$web.zip" "dist/context-handoff-web-$web.zip"
+          cp "build/context-handoff-web-$web.zip" build/context-handoff-web.zip
+          echo "web=$web" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
+      - name: Publish claude.ai (web) release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.build.outputs.web }}
+        run: |
+          tag="context-handoff-web-v$V"
+          files="build/context-handoff-web-$V.zip build/context-handoff-web.zip"
+          cat > notes.md <<EOF
+          Plugin **Context Handoff** for claude.ai (chat on the web, desktop and mobile).
+
+          **Install**: download \`context-handoff-web-$V.zip\` below, then on claude.ai go to
+          **Customize › Plugins › Add › Upload plugin** and choose the file (do not unzip it).
+          If an earlier version is installed, remove it first (plugin menu › Remove).
+
+          \`context-handoff-web.zip\` is the same file under a stable name:
+          https://github.com/${{ github.repository }}/releases/latest/download/context-handoff-web.zip
+
+          Documentation: https://github.com/${{ github.repository }}/blob/${{ github.sha }}/plugins/context-handoff-web/README.md
+          EOF
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" $files --clobber
+            gh release edit "$tag" --notes-file notes.md --latest
+          else
+            gh release create "$tag" $files --target "${{ github.sha }}" \
+              --title "Context Handoff for claude.ai $V" --notes-file notes.md --latest
+          fi
+
+      - name: Publish Claude Code release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.build.outputs.code }}
+        run: |
+          tag="context-handoff-code-v$V"
+          file="build/context-handoff-code-$V.zip"
+          cat > notes.md <<EOF
+          Plugin **context-handoff** for Claude Code (hooks, /handoff command, Python helper).
+
+          Recommended install, from a Claude Code session:
+          \`/plugin marketplace add ${{ github.repository }}\` then \`/plugin install context-handoff@claude-mods\`.
+
+          Offline install: unzip \`context-handoff-code-$V.zip\`, then
+          \`claude plugin marketplace add <unzipped>/claude-mods\` and
+          \`claude plugin install context-handoff@claude-mods\`.
+          EOF
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$file" --clobber
+            gh release edit "$tag" --notes-file notes.md --latest=false
+          else
+            gh release create "$tag" "$file" --target "${{ github.sha }}" \
+              --title "context-handoff for Claude Code $V" --notes-file notes.md --latest=false
+          fi
