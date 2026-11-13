@@ -6,15 +6,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python: ["3.8", "3.12"]
+        # Python 3.8/3.9 are no longer provided on current Ubuntu runners;
+        # 3.8 grammar compatibility is still checked by the job below.
+        python: ["3.10", "3.13"]
         exclude:
           - os: macos-latest
-            python: "3.8"
+            python: "3.10"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      - name: Python 3.8 grammar
+        run: python -c "import ast,pathlib;[ast.parse(f.read_text(),feature_version=(3,8)) for d in ('plugins','tools') for f in pathlib.Path(d).rglob('*.py')]"
       - name: Claude Code plugin
         run: python -m unittest discover -s plugins/context-handoff/tests -v
       - name: claude.ai (web) plugin, shared format and archives

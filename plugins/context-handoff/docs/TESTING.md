@@ -58,8 +58,9 @@ Exécutés avec `claude -p … --plugin-dir plugins/context-handoff --output-for
   `trigger=auto` est couvert par les tests automatisés, la compaction manuelle par l'essai réel.
 - **Affichage de `systemMessage` dans l'interface interactive (TUI / application)** : vérifié dans le
   flux d'événements, pas visuellement.
-- **macOS, Windows/WSL, Python 3.8–3.10** : non exécutés ici ; le workflow `.github/workflows/test.yml`
-  couvre Ubuntu et macOS avec Python 3.8 et 3.12 à chaque push.
+- **Windows/WSL, Python 3.8–3.9** : non exécutés. Le workflow `.github/workflows/test.yml` exécute
+  les tests sur Ubuntu (Python 3.10 et 3.13) et macOS (3.13) à chaque push ; Python 3.8 n'étant plus
+  fourni par les runners GitHub, seule la compatibilité de syntaxe 3.8 y est vérifiée.
 - **Pont de barre d'état** : testé par entrée JSON simulée (schéma documenté dans le binaire), pas
   dans une barre d'état réelle.
 - Dans le conteneur de test, `claude -p` réutilisait l'identifiant de session parent ; le rappel de
